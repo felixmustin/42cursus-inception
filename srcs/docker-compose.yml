@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+ 
+  nginx:
+    container-name: nginx
+    image: nginx
+    restart: always
+    build:
+      context: ./requirements/nginx
+    volumes:
+      - wordpress-volume:/var/www/app
+    networks:
+      - inception
+    ports:
+      - "443:443"
+
+  wordpress:
+    container-name: wordpress
+    image: wordpress
+    restart: always
+    build:
+      context: ./requirements/wordpress
+      args:
+        -DB_USERNAME=${DB_USERNAME}
+        -DB_PASSWORD=${DB_PASSWORD}
+        -DB_DATABASE=${DB_DATABASE}
+    volumes:
+      -wordpress-volume:/var/www/app
+    networks:
+      -inception
+
+  mariadb:
+    container-name: mariadb
+    image: mariadb
+    restart: always
+    build:
+      context: ./requirements/mariadb
+      args:
+        - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+        - DB_USERNAME=${DB_USERNAME}
+        - DB_PASSWORD=${DB_PASSWORD}
+        - DB_DATABASE=${DB_DATABASE}
+        - WP_ROOT_USERNAME=${WP_ROOT_USERNAME}
+        - WP_ROOT_PASSWORD=${WP_ROOT_PASSWORD}
+        - WP_USER_PASSWORD=${WP_USER_PASSWORD}
+    volumes:
+      -database-volume:/var/lib/mysql
+    networks:
+      -inception
+
+
+volumes:
+  wordpress-volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/fmustin/docker/data/wordpress
+      o: bind
+  database-volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/fmustin/docker/data/database
+      o: bind
+
+
+networks:
+  inception:
+    driver: bridge
+
