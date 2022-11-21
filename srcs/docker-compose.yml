@@ -6,10 +6,12 @@ services:
     container_name: nginx
     image: nginx
     restart: unless-stopped
+    depends_on:
+      - mariadb
     build:
       context: ./requirements/nginx
     volumes:
-      - wordpress-volume:/var/www/app
+      - ${VOL_WWW_PATH}:/var/www/app
     networks:
       - inception
     ports:
@@ -19,6 +21,8 @@ services:
     container_name: wordpress
     image: wordpress
     restart: unless-stopped
+    depends_on:
+      - mariadb
     build:
       context: ./requirements/wordpress
       args:
@@ -26,7 +30,7 @@ services:
         - DB_PASSWORD=${DB_PASSWORD}
         - DB_DATABASE=${DB_DATABASE}
     volumes:
-      - wordpress-volume:/var/www/app
+      - ${VOL_WWW_PATH}:/var/www/app
     networks:
       - inception
 
@@ -37,34 +41,32 @@ services:
     build:
       context: ./requirements/mariadb
       args:
+        - DB_ROOT_USERNAME=${DB_ROOT_USERNAME}
         - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
         - DB_USERNAME=${DB_USERNAME}
         - DB_PASSWORD=${DB_PASSWORD}
         - DB_DATABASE=${DB_DATABASE}
-        - WP_ROOT_USERNAME=${WP_ROOT_USERNAME}
-        - WP_ROOT_PASSWORD=${WP_ROOT_PASSWORD}
-        - WP_USER_PASSWORD=${WP_USER_PASSWORD}
     volumes:
-      - database-volume:/var/lib/mysql
+      - ${VOL_DB_PATH}:/var/lib/mysql
     networks:
       - inception
     ports:
       - "3306:3306"
 
 
-volumes:
-  wordpress-volume:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${VOL_WWW_PATH}
-      o: bind
-  database-volume:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${VOL_DB_PATH}
-      o: bind
+#volumes:
+#  wordpress-volume:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      device: ${VOL_WWW_PATH}
+#      o: bind
+#  database-volume:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      device: ${VOL_DB_PATH}
+#      o: bind
 
 
 networks:
