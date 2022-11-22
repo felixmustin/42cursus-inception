@@ -5,22 +5,21 @@ services:
   nginx:
     container_name: nginx
     image: nginx
-    restart: unless-stopped
     depends_on:
-      - mariadb
+      - wordpress
     build:
       context: ./requirements/nginx
     volumes:
-      - ${VOL_WWW_PATH}:/var/www/app
+      - ${VOL_WWW_PATH}:/var/www/html/wordpress
     networks:
       - inception
     ports:
       - "443:443"
+    restart: always
 
   wordpress:
     container_name: wordpress
     image: wordpress
-    restart: unless-stopped
     depends_on:
       - mariadb
     build:
@@ -29,19 +28,19 @@ services:
         - DB_USERNAME=${DB_USERNAME}
         - DB_PASSWORD=${DB_PASSWORD}
         - DB_DATABASE=${DB_DATABASE}
+        - DB_HOSTNAME=${DB_HOSTNAME}
     volumes:
-      - ${VOL_WWW_PATH}:/var/www/app
+      - ${VOL_WWW_PATH}:/var/www/html/wordpress
     networks:
       - inception
+    restart: always
 
   mariadb:
     container_name: mariadb
     image: mariadb
-    restart: unless-stopped
     build:
       context: ./requirements/mariadb
       args:
-        - DB_ROOT_USERNAME=${DB_ROOT_USERNAME}
         - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
         - DB_USERNAME=${DB_USERNAME}
         - DB_PASSWORD=${DB_PASSWORD}
@@ -50,8 +49,7 @@ services:
       - ${VOL_DB_PATH}:/var/lib/mysql
     networks:
       - inception
-    ports:
-      - "3306:3306"
+    restart: always
 
 
 #volumes:
