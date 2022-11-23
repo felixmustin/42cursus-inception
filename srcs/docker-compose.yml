@@ -10,7 +10,7 @@ services:
     build:
       context: ./requirements/nginx
     volumes:
-      - ${VOL_WWW_PATH}:/var/www/html/wordpress
+      - wordpress_volume:/var/www/html/wordpress
     networks:
       - inception
     ports:
@@ -30,7 +30,7 @@ services:
         - DB_DATABASE=${DB_DATABASE}
         - DB_HOSTNAME=${DB_HOSTNAME}
     volumes:
-      - ${VOL_WWW_PATH}:/var/www/html/wordpress
+      - wordpress_volume:/var/www/html/wordpress
     networks:
       - inception
     restart: always
@@ -46,25 +46,25 @@ services:
         - DB_PASSWORD=${DB_PASSWORD}
         - DB_DATABASE=${DB_DATABASE}
     volumes:
-      - ${VOL_DB_PATH}:/var/lib/mysql
+      - database_volume:/var/lib/mysql
     networks:
       - inception
     restart: always
 
 
-#volumes:
-#  wordpress-volume:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      device: ${VOL_WWW_PATH}
-#      o: bind
-#  database-volume:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      device: ${VOL_DB_PATH}
-#      o: bind
+volumes:
+  database_volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${VOL_DB_PATH}
+      o: bind
+  wordpress_volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${VOL_WWW_PATH}
+      o: bind
 
 
 networks:

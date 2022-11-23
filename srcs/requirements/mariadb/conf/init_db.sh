@@ -1,19 +1,24 @@
-#!/bin/sh
-
-mysql_install_db
-/etc/init.d/mysql start
-
-if [ -d "/var/lib/mysql/$DB_DATABASE" ]
+#!/bin/bash
+service mysql start
+if [ ! -d /var/lib/mysql/$DB_DATABASE ];
 then
-	echo "Databse already configured"
+	echo "mariadb already configured"
 else
-	echo "GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY '$DB_ROOT_PASSWORD'; FLUSH PRIVILEGES;" | mysql -uroot
-	echo "CREATE DATABASE IF NOT EXISTS $DB_DATABASE; GRANT ALL ON $DB_DATABASE.* TO '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD'; FLUSH PRIVILEGES;" | mysql -uroot
-mysql -uroot -p$DB_ROOT_PASSWORD $DB_DATABASE < /usr/local/bin/wordpress.sql
-
+#	mysql -e "CREATE DATABASE $DB_DATABASE;"
+#	mysql -e "CREATE USER '${DB_USERNAME}'@'%' IDENTIFIED BY '${DB_PASSWORD}';"
+#	mysql -e "GRANT ALL PRIVILEGES ON ${DB_DATABASE}.* TO '${DB_USERNAME}'@'%';"
+	mysql -u root -e "ALTER USER root@localhost IDENTIFIED WITH mysql_native_password;"
+	mysql -u root -e "ALTER USER root@localhost IDENTIFIED BY '$DB_ROOT_PASSWORD';"
+	mysql -u root -p${DB_ROOT_PASSWORD} -e "CREATE DATABASE $DB_DATABASE;"
+	mysql -u root -p${DB_ROOT_PASSWORD} -e "CREATE USER '$DB_USERNAME' IDENTIFIED BY '$DB_PASSWORD';"
+	mysql -u root -p${DB_ROOT_PASSWORD} -e "GRANT USAGE ON $DB_DATABASE.* TO '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION;"
+	mysql -u root -p${DB_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON $DB_DATABASE.* TO '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION;;"
+	mysql -u root -p${DB_ROOT_PASSWORD} -e "CREATE USER 'evaluator' IDENTIFIED BY '$DB_PASSWORD';"
+	mysql -u root -p${DB_ROOT_PASSWORD} -e "GRANT USAGE ON $DB_DATABASE.* TO 'evaluator'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION;"
 fi
-/etc/init.d/mysql stop
-exec "$@"
+
+
+
 
 
 #if [ ! -d /var/lib/mysql/${DB_DATABASE} ]; then

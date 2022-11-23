@@ -11,10 +11,10 @@ RUN	mkdir -p /var/www/html
 COPY 	./conf/www.conf /var/www/html
 RUN	mkdir /run/php
 
-COPY 	./conf/init_wp.sh .
-RUN 	chmod +x init_wp.sh
+COPY 	./conf/init_wp.sh /usr/local/bin
+RUN 	chmod +x /usr/local/bin/init_wp.sh
 
-ENTRYPOINT ["./init_wp.sh"]
+ENTRYPOINT ["/usr/local/bin/init_wp.sh"]
 
 WORKDIR /var/www/html/
 
