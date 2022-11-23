@@ -6,7 +6,8 @@ RUN 	apt-get update -y && \
 	apt-get install openssl -y
 	
 #RUN	mkdir -p /etc/nginx/ssl
-RUN	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/fmustin.42.fr.key -out /etc/ssl/fmustin.42.fr.pem -subj "/C=BE/ST=BRUSSELS/L=BRUSSELS/O=19/OU=fmustin/CN=fmustin.42.fr"
+RUN	openssl req -x509 -nodes -days 360 -newkey rsa:2048 -keyout /etc/ssl/private_key.key -out /etc/ssl/certificate.crt -subj "/C=BE/ST=Bruxelles/L=Bruxelles/O=19/CN=fmustin"
+
 
 #RUN	mkdir -p /var/run/nginx
 COPY 	conf/nginx.conf /etc/nginx/conf.d

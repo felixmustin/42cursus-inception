@@ -31,6 +31,8 @@ services:
         - DB_HOSTNAME=${DB_HOSTNAME}
     volumes:
       - wordpress_volume:/var/www/html/wordpress
+    ports:
+      - "9000:9000"
     networks:
       - inception
     restart: always
@@ -47,6 +49,8 @@ services:
         - DB_DATABASE=${DB_DATABASE}
     volumes:
       - database_volume:/var/lib/mysql
+    ports:
+      - "3306:3306"
     networks:
       - inception
     restart: always
@@ -69,5 +73,3 @@ volumes:
 
 networks:
   inception:
-    driver: bridge
-
