@@ -1,43 +1,29 @@
-FROM 	debian:buster
-
-EXPOSE 	9000
+FROM debian:buster
 
 RUN	apt-get update -y && \
 	apt-get upgrade -y && \
 	apt-get install -y php php-fpm php-cgi php-pdo php7.3-mysql wget
 
-#PHP FPM
-RUN	mkdir -p /var/www/html
-COPY 	./conf/www.conf /var/www/html
-RUN	mkdir /run/php
+COPY ./conf/www.conf /etc/php/7.3/fpm/pool.d/
 
-COPY 	./conf/init_wp.sh /usr/local/bin
-RUN 	chmod +x /usr/local/bin/init_wp.sh
+RUN mkdir /run/php
 
-ENTRYPOINT ["/usr/local/bin/init_wp.sh"]
+RUN wget https://wordpress.org/latest.tar.gz
+RUN tar -xvzf latest.tar.gz && rm -rf latest.tar.gz
 
-WORKDIR /var/www/html/
+RUN	mkdir -p /var/www/html 
 
-CMD ["/usr/sbin/php-fpm7.3", "-F"]
+ARG	DB_USERNAME
+ARG	DB_PASSWORD
+ARG	DB_HOSTNAME
+ARG	DB_DATABASE
 
+COPY	./conf/wp-config.php /wordpress/wp-config.php
 
+EXPOSE 9000
 
+COPY run.sh /
+RUN chmod +x ./run.sh
 
-
-#WORDPRESS SETUP
-#RUN	mkdir -p /var/www/app
-#COPY 	./conf/wp-conf.php /home
-
-#RUN 	wget wordpress.org/latest.tar.gz
-#RUN 	tar -xzvf latest.tar.gz
-#RUN	rm latest.tar.gz
-#RUN	mv -f wordpress /var/www/app
-#RUN	chown -R www-data:www-data /var/www/app/wordpress
-#RUN	rm /var/www/app/wordpress/wp-config-sample.php
-#RUN	mv /home/wp-conf.php /var/www/app/wordpress/
-
-#RUN sed -i "s/DATABASE_USER/$DB_USERNAME/g" /var/www/app/wordpress/wp-conf.php
-#RUN sed -i "s/DATABASE_NAME/$DB_DATABASE/g" /var/www/app/wordpress/wp-conf.php
-#RUN sed -i "s/DATABASE_PASS/$DB_PASSWORD/g" /var/www/app/wordpress/wp-conf.php
-
-#CMD	["php-fpm7.3", "-F"]
+ENTRYPOINT [ "./run.sh" ]
+#CMD	["php-fpm7.4", "-F"]

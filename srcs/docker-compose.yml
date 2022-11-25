@@ -29,6 +29,8 @@ services:
         - DB_PASSWORD=${DB_PASSWORD}
         - DB_DATABASE=${DB_DATABASE}
         - DB_HOSTNAME=${DB_HOSTNAME}
+    env_file:
+      - .env
     volumes:
       - wordpress_volume:/var/www/html/wordpress
     ports:
@@ -47,6 +49,8 @@ services:
         - DB_USERNAME=${DB_USERNAME}
         - DB_PASSWORD=${DB_PASSWORD}
         - DB_DATABASE=${DB_DATABASE}
+    env_file:
+      - .env
     volumes:
       - database_volume:/var/lib/mysql
     ports:
@@ -61,15 +65,16 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ${VOL_DB_PATH}
+      device: ${DB_VOL}
       o: bind
   wordpress_volume:
     driver: local
     driver_opts:
       type: none
-      device: ${VOL_WWW_PATH}
+      device: ${WWW_VOL}
       o: bind
 
 
 networks:
   inception:
+    driver: bridge
