@@ -1,5 +1,5 @@
 [mysqld]
-skip-grant-tables
+
 user = root
 port = 3306
 datadir = /var/lib/mysql

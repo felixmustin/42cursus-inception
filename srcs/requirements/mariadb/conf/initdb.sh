@@ -1,16 +1,18 @@
 #!/bin/bash
-service mysql start
-if [ ! -d /var/lib/mysql/$DB_DATABASE$ ]
-then
-	echo "mariadb already configured"
-else
-	mysql -u root -e "ALTER USER root@localhost IDENTIFIED WITH mysql_native_password;"
-	mysql -u root -e "ALTER USER root@localhost IDENTIFIED BY '$DB_ROOT_PASSWORD';"
-	mysql -u root -p$DB_ROOT_PASSWORD -e "CREATE DATABASE $DB_DATABASE;"
-	mysql -u root -p$DB_ROOT_PASSWORD -e "CREATE USER '$DB_USERNAME' IDENTIFIED BY '$DB_PASSWORD';"
-	mysql -u root -p$DB_ROOT_PASSWORD -e "GRANT USAGE ON $DB_DATABASE.* TO '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION;"
-	mysql -u root -p$DB_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON $DB_DATABASE.* TO '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION;;"
-	mysql -u root -p$DB_ROOT_PASSWORD -e "CREATE USER 'evaluator' IDENTIFIED BY '$DB_PASSWORD';"
-	mysql -u root -p$DB_ROOT_PASSWORD -e "GRANT USAGE ON $DB_DATABASE.* TO 'evaluator'@'%' IDENTIFIED BY '$DB_PASSWORD' WITH GRANT OPTION;"
 
+service mysql start
+if [ -d /var/lib/mysql/$MYSQL_DATABASE ];
+then
+	echo "deja config"
+else
+mysql -u root -e "DROP DATABASE IF EXISTS $MYSQL_DATABASE;"
+mysql -u root -e "DROP USER IF EXISTS '$MYSQL_USER'@'%';"
+mysql -u root -e "CREATE DATABASE $MYSQL_DATABASE;"
+mysql -u root -e "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD'"
+mysql -u root -e "GRANT ALL ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' WITH GRANT OPTION;"
+mysql -u root -e "FLUSH PRIVILEGES;"
+#mysql -u root -e "alter user 'root'@'localhost' identified by '$MYSQL_ROOT_PASSWORD'";
+
+service mysql stop
 fi
+exec "$@"
