@@ -4,12 +4,12 @@ RUN	apt-get update -y && \
 	apt-get upgrade -y && \
 	apt-get install -y php php-fpm php-cgi php-pdo php7.3-mysql wget curl
 
-COPY ./conf/www.conf /etc/php/7.3/fpm/pool.d/
+COPY 	./conf/www.conf /etc/php/7.3/fpm/pool.d/
 
-RUN mkdir /run/php
+RUN 	mkdir /run/php
 
-RUN wget https://wordpress.org/latest.tar.gz
-RUN tar -xvzf latest.tar.gz && rm -rf latest.tar.gz
+RUN	wget https://wordpress.org/latest.tar.gz \
+	&& tar -xvzf latest.tar.gz && rm -rf latest.tar.gz
 
 RUN 	curl -Ok https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
 	&& chmod +x wp-cli.phar \
@@ -17,17 +17,12 @@ RUN 	curl -Ok https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-c
 
 RUN	mkdir -p /var/www/html 
 
-ARG	DB_USERNAME
-ARG	DB_PASSWORD
-ARG	DB_HOSTNAME
-ARG	DB_DATABASE
-
 COPY	./conf/wp-config.php /wordpress/wp-config.php
 
-EXPOSE 9000
+EXPOSE 	9000
 
-COPY run.sh /
-RUN chmod +x ./run.sh
+COPY 	tools/run.sh /
+RUN 	chmod +x ./run.sh
 
-ENTRYPOINT [ "./run.sh" ]
-#CMD	["php-fpm7.4", "-F"]
+ENTRYPOINT 	[ "./run.sh" ]
+CMD		["php-fpm7.3", "-F"]
