@@ -1,18 +1,25 @@
 #!/bin/bash
 
-service mysql start
 if [ -d /var/lib/mysql/$MYSQL_DATABASE ];
 then
 	echo "Already configured"
 else
-mysql -u root -e "DROP DATABASE IF EXISTS $MYSQL_DATABASE;"
-mysql -u root -e "DROP USER IF EXISTS '$MYSQL_USER'@'%';"
-mysql -u root -e "CREATE DATABASE $MYSQL_DATABASE;"
-mysql -u root -e "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD'"
-mysql -u root -e "GRANT ALL ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' WITH GRANT OPTION;"
-mysql -u root -e "FLUSH PRIVILEGES;"
-#mysql -u root -e "alter user 'root'@'localhost' identified by '$MYSQL_ROOT_PASSWORD'";
+
+service mysql start
+
+mysql --user=root << _EOF_
+DELETE FROM mysql.user where User='';
+DELETE FROM mysql.user where User='root' and Host not in ('localhost', '127.0.0.1', '::1');
+SET password for 'root'@'localhost' = password('$MYSQL_ROOT_PASSWORD');
+DROP DATABASE IF EXISTS $MYSQL_DATABASE;
+CREATE DATABASE $MYSQL_DATABASE;
+CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+GRANT ALL ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+FLUSH PRIVILEGES;
+_EOF_
+
+mysqladmin --user=root --password=$MYSQL_ROOT_PASSWORD shutdown
+
 fi
 
-service mysql stop
 exec "$@"
